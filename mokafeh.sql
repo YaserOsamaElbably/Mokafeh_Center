@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 05, 2025 at 07:30 AM
+-- Generation Time: Apr 24, 2025 at 08:37 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,10 +52,7 @@ INSERT INTO `categories` (`id`, `name`) VALUES
 (13, 'Separates'),
 (14, 'deans'),
 (15, 'money_collections'),
-(16, 'travel'),
-(17, 'hands'),
-(18, 'bank'),
-(19, 'VF_cash');
+(16, 'travel');
 
 -- --------------------------------------------------------
 
@@ -84,8 +81,8 @@ CREATE TABLE `employees` (
   `password` varchar(50) NOT NULL,
   `e_mail` varchar(50) NOT NULL,
   `phone_number` varchar(15) NOT NULL,
-  `created_at` date NOT NULL,
-  `updated_at` date NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `birth_day` date DEFAULT NULL,
   `gender` varchar(6) DEFAULT NULL,
   `supervising_id` int(11) NOT NULL
@@ -99,31 +96,13 @@ CREATE TABLE `employees` (
 
 CREATE TABLE `factsales` (
   `id` int(11) NOT NULL,
-  `value` float NOT NULL,
-  `Date` date NOT NULL,
+  `date` date NOT NULL DEFAULT curdate(),
   `employee_id` int(11) NOT NULL,
+  `type` enum('صادر','وارد') DEFAULT 'صادر',
   `category_id` int(11) NOT NULL,
-  `type_id` int(11) NOT NULL
+  `value` float NOT NULL,
+  `notes` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`notes`))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `types`
---
-
-CREATE TABLE `types` (
-  `id` int(11) NOT NULL,
-  `name` varchar(10) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `types`
---
-
-INSERT INTO `types` (`id`, `name`) VALUES
-(1, 'import'),
-(2, 'export');
 
 --
 -- Indexes for dumped tables
@@ -155,16 +134,9 @@ ALTER TABLE `employees`
 --
 ALTER TABLE `factsales`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `Date` (`Date`),
+  ADD KEY `date` (`date`),
   ADD KEY `employee_id` (`employee_id`),
-  ADD KEY `category_id` (`category_id`),
-  ADD KEY `type_id` (`type_id`);
-
---
--- Indexes for table `types`
---
-ALTER TABLE `types`
-  ADD PRIMARY KEY (`id`);
+  ADD KEY `category_id` (`category_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -174,7 +146,7 @@ ALTER TABLE `types`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `employees`
@@ -186,13 +158,7 @@ ALTER TABLE `employees`
 -- AUTO_INCREMENT for table `factsales`
 --
 ALTER TABLE `factsales`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
-
---
--- AUTO_INCREMENT for table `types`
---
-ALTER TABLE `types`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -208,10 +174,9 @@ ALTER TABLE `employees`
 -- Constraints for table `factsales`
 --
 ALTER TABLE `factsales`
-  ADD CONSTRAINT `factsales_ibfk_1` FOREIGN KEY (`Date`) REFERENCES `dimdate` (`Date`),
+  ADD CONSTRAINT `factsales_ibfk_1` FOREIGN KEY (`date`) REFERENCES `dimdate` (`Date`),
   ADD CONSTRAINT `factsales_ibfk_2` FOREIGN KEY (`employee_id`) REFERENCES `employees` (`id`),
-  ADD CONSTRAINT `factsales_ibfk_3` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`),
-  ADD CONSTRAINT `factsales_ibfk_4` FOREIGN KEY (`type_id`) REFERENCES `types` (`id`);
+  ADD CONSTRAINT `factsales_ibfk_3` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
